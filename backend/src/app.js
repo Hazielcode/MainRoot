@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
+import authRoutes from './routes/authRoutes.js';
+
 const app = express();
 
 // Middlewares Globales
@@ -10,6 +12,9 @@ app.use(helmet()); // Seguridad de cabeceras HTTP
 app.use(cors()); // Habilitar peticiones cruzadas
 app.use(express.json()); // Parseo de Body JSON
 app.use(morgan('dev')); // Logs de peticiones HTTP en consola
+
+// Rutas de la Aplicación
+app.use('/api/auth', authRoutes); // Endpoints de Autenticación (Login, Registro)
 
 // Endpoints Base para Testeo Inicial
 app.get('/api/health', (req, res) => {
