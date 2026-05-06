@@ -62,15 +62,21 @@ Este documento funciona como una bitácora técnica. Aquí documentaremos cada a
 **Fase:** 3 (Control de Acceso Basado en Atributos - ABAC)
 **Estado:** Completado ✅
 
+---
+
+## Avance 11: Motor de Auditoría (Audit Trails) - Zero Trust
+**Fase:** 4 (Observabilidad y Cumplimiento)
+**Estado:** Completado ✅
+
 **Acciones Técnicas Realizadas:**
-1. **Modelado (productModel.js):**
-   - Construcción del CRUD de productos optimizado (`COALESCE` en SQL para actualizaciones parciales eficaces).
-   - Capacidad de filtrar productos por el ID de la tienda automáticamente a nivel base de datos.
-2. **Capa ABAC Geográfica (`canManageProduct`):**
-   - Se diseñó un validador que intercepta intentos de alteración.
-   - Si el `tienda_id` inyectado en el JWT del empleado *NO COINCIDE* con el `tienda_id` del producto en la Base de Datos, el sistema lanza un error `403 Forbidden` abortando la transacción.
-   - Excepción diseñada: Los perfiles `Admin` tienen pase libre (Jurisdicción Global).
-3. **Capa RBAC Microscópica:**
-   - Adicional a la ubicación, se inyectó una regla al endpoint de actualización: Si un usuario con el rol de `Empleado` intenta modificar el campo `precio`, la transacción es denegada (`403`).
-4. **Visibilidad ABAC:**
-   - Al consultar productos (`GET`), si un usuario es local, el controlador intercepta la ruta y automáticamente inyecta un filtro en el WHERE de SQL para devolverle **solo los productos de su tienda**. Un `Admin` recibe todos los productos.
+1. **Modelado Core (`auditModel.js` y tabla `audit_logs`):**
+   - Sistema diseñado para guardar el rastro inmutable de "Quién hizo qué, cuándo, desde dónde y qué cambió".
+2. **Capa de Servicio Interceptor (`auditService.js`):**
+   - Extrae inteligentemente el ID del causante desde el JWT (`req.user.userId`).
+   - Extrae la IP de manera segura (`req.headers['x-forwarded-for']` para tolerar Proxies o Load Balancers).
+   - Registra JSONs detallados de la `Data Antigua` vs `Data Nueva`.
+3. **Inyección en Controladores Críticos:**
+   - **Productos:** Se graban logs al Crear, Actualizar y Eliminar productos del inventario.
+   - **Usuarios:** Se graban logs cuando un Admin cambia el Rol de alguien o desactiva (bloquea) una cuenta.
+4. **Visibilidad Segura (`auditController`):**
+   - Ruta `GET /api/audit` creada (más adelante la protegeremos solo para rol `Auditor` y `Admin`) donde se listan las pistas con el correo real de quien efectuó el ataque/cambio (Join SQL).
