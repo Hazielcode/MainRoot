@@ -3,73 +3,30 @@
 Este documento funciona como una bitácora técnica. Aquí documentaremos cada avance, configuración y módulo desarrollado para mantener el control y la trazabilidad del proyecto.
 
 ---
-
-## Avance 1: Setup del Backend, Git y Arquitectura Limpia
+## Avance 1-11: Arquitectura Base, ABAC, RBAC y Zero Trust
 **Estado:** Completado ✅
 
 ---
-
-## Avance 2: Diseño de Base de Datos y Configuración (PostgreSQL)
-**Estado:** Completado ✅
-
----
-
-## Avance 3: Reestructuración a Arquitectura Monorepo
-**Estado:** Completado ✅
-
----
-
-## Avance 4: Lógica Base de Autenticación y Cifrado (Registro y Login)
-**Estado:** Completado ✅
-
----
-
-## Avance 5: Autenticación Multi-Factor (MFA / TOTP)
-**Estado:** Completado ✅
-
----
-
-## Avance 6: Escudo Protector de Rutas (Middleware de Autenticación)
-**Estado:** Completado ✅
-
----
-
-## Avance 7: Módulo de Roles y Base para RBAC (Fase 2)
-**Estado:** Completado ✅
-
----
-
-## Avance 8: Gestión Administrativa de Usuarios y Asignación de Roles
-**Estado:** Completado ✅
-
----
-
-## Avance 9: Fundamentos ABAC - Módulo de Tiendas
-**Estado:** Completado ✅
-
----
-
-## Avance 10: Inventario y Reglas Dinámicas (Fase ABAC)
-**Estado:** Completado ✅
-
----
-
-## Avance 11: Motor de Auditoría (Audit Trails) - Zero Trust
-**Estado:** Completado ✅
-
----
-
 ## Avance 12: Inicialización y Arquitectura Visual del Frontend
 **Fase:** 5 (Desarrollo del Cliente Web)
 **Estado:** Completado ✅
 
+---
+## Avance 13: Conexión Frontend-Backend y Dashboard Estructural
+**Fase:** 5 (Desarrollo del Cliente Web)
+**Estado:** Completado ✅
+
 **Acciones Técnicas Realizadas:**
-1. **Scaffolding de React:** Generación del proyecto cliente utilizando `Vite` y `React` en la carpeta `/frontend` del monorepo.
-2. **Sistema de Enrutamiento:** Instalación de `react-router-dom` para orquestar la navegación entre pantallas (Login, Dashboard, etc).
-3. **Peticiones HTTP:** Instalación de `axios` preparado para conectarse con nuestro backend asegurado.
-4. **Diseño de Élite (Glassmorphism):**
-   - Construcción de un `index.css` global en Vanilla CSS sin dependencias pesadas.
-   - Implementación de un Theme Oscuro (*Dark Mode*) con efectos "Glassmorphism" (Paneles de cristal esmerilado translúcidos), sombras dinámicas y tipografía moderna (`Outfit`).
-   - Botones animados e Inputs elegantes para proyectar una apariencia corporativa de alta tecnología (Cyber-Enterprise).
-5. **Portal de Autenticación (Página de Login):**
-   - Creado el esqueleto visual de la pantalla inicial en `LoginPage.jsx` que pronto conectaremos con la API del backend.
+1. **Instancia Axios y JWT Interceptor:**
+   - Se configuró `api.js` para que todas las peticiones apunten al puerto 3000 (Backend).
+   - El interceptor inyecta automáticamente el token JWT guardado en `localStorage` a las cabeceras `Authorization: Bearer` de cada petición.
+2. **Enrutamiento Protegido (Protected Routes):**
+   - Se modificó `App.jsx` para incluir un componente `ProtectedRoute`. Si alguien intenta entrar a `/dashboard` sin haber iniciado sesión, es pateado automáticamente de regreso a `/`.
+3. **Lógica del Login (`LoginPage.jsx`):**
+   - Conectado el formulario al endpoint `POST /api/auth/login`.
+   - Implementado el manejo de errores (Mostrando alertas en rojo si las credenciales fallan o el servidor está apagado).
+   - Implementado el estado de carga (Loading) para bloquear el botón mientras se procesa.
+4. **Esqueleto del Dashboard (`DashboardPage.jsx`):**
+   - Creado un panel administrativo que respeta el diseño Enterprise.
+   - Cuenta con botón de Cerrar Sesión (destruye el token de seguridad) y modo Oscuro/Claro.
+   - **Módulos gráficos preparados:** Cajas listas para integrar librerías como Recharts o Chart.js.
