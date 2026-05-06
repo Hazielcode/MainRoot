@@ -1,16 +1,15 @@
 import { Router } from 'express';
 import userController from '../controllers/userController.js';
 import { requireAuth } from '../middlewares/authMiddleware.js';
-// import { requireRole } from '../middlewares/rbacMiddleware.js';
+import { requireRole } from '../middlewares/rbacMiddleware.js';
 
 const router = Router();
 
-// Todo este módulo es estrictamente seguro, solo usuarios validados pueden entrar
+// Todo el módulo de gestión de personal requiere autenticación
 router.use(requireAuth);
 
-// Nota: Cuando tengamos usuarios con roles asignados, descomentaremos el middleware requireRole
-// para que SOLO los usuarios con el rol 'Admin' puedan gestionar al personal.
-// router.use(requireRole(['Admin'])); 
+// Solo Administradores pueden gestionar al personal
+router.use(requireRole(['Admin']));
 
 // Obtener la lista completa de personal y sus roles
 router.get('/', userController.getAllUsers);

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ThemeContext } from '../App.jsx';
 import api from '../services/api.js';
 
@@ -23,9 +23,10 @@ const LoginPage = () => {
       const response = await api.post('/auth/login', { email, password });
       
       // 2. ¿Tiene MFA activado?
-      if (response.data.mfa_required) {
-        setErrorMsg('Atención: Su cuenta requiere código MFA. (Módulo MFA web en construcción).');
-        // Más adelante, aquí abriremos un modal para pedir el código de 6 dígitos.
+      if (response.data.mfaRequired) {
+        // Redirigimos a la pantalla de verificación MFA pasando los datos necesarios
+        navigate('/mfa', { state: { email: response.data.email, userId: response.data.userId } });
+        return;
       } else {
         // 3. Login exitoso -> Guardamos el JWT y redireccionamos al Dashboard
         localStorage.setItem('mainroot_token', response.data.token);
@@ -155,7 +156,12 @@ const LoginPage = () => {
               </button>
             </form>
 
-            <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              ¿No tiene cuenta?{' '}
+              <Link to="/register" style={{ color: 'var(--accent-primary)', fontWeight: 500, textDecoration: 'none' }}>Regístrese aquí</Link>
+            </div>
+
+            <div style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-secondary)', opacity: 0.7 }}>
               Mainroot System v1.0.0 &copy; {new Date().getFullYear()}
             </div>
           </div>

@@ -23,6 +23,7 @@ class AuthController {
         return res.status(200).json({
           message: 'Verificación de dos pasos requerida',
           mfaRequired: true,
+          userId: result.userId,
           email: result.email
         });
       }

@@ -1,18 +1,18 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage.jsx';
+import MfaPage from './pages/MfaPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 
 export const ThemeContext = createContext();
 
 // HOC para proteger rutas privadas
-// NOTA: Temporalmente deshabilitado para desarrollo visual. 
-// Cuando conectemos el backend, activamos la validación del JWT.
 const ProtectedRoute = ({ children }) => {
-  // const token = localStorage.getItem('mainroot_token');
-  // if (!token) {
-  //   return <Navigate to="/" />;
-  // }
+  const token = localStorage.getItem('mainroot_token');
+  if (!token) {
+    return <Navigate to="/" />;
+  }
   return children;
 };
 
@@ -39,15 +39,13 @@ const App = () => {
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
       <BrowserRouter>
         <Routes>
+          {/* Rutas Públicas */}
           <Route path="/" element={<LoginPage />} />
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/mfa" element={<MfaPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          
+          {/* Rutas Protegidas */}
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </ThemeContext.Provider>
