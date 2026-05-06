@@ -8,6 +8,7 @@ import roleRoutes from './routes/roleRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import storeRoutes from './routes/storeRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import auditRoutes from './routes/auditRoutes.js';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api/roles', roleRoutes); // Endpoints de Roles (CRUD)
 app.use('/api/users', userRoutes); // Endpoints de Administración de Personal
 app.use('/api/stores', storeRoutes); // Endpoints de Tiendas/Sucursales
 app.use('/api/products', productRoutes); // Endpoints de Inventario (ABAC)
+app.use('/api/audit', auditRoutes); // Endpoints de Auditoría (Audit Trails)
 
 // Endpoints Base para Testeo Inicial
 app.get('/api/health', (req, res) => {

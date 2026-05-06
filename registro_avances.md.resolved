@@ -56,12 +56,21 @@ Este documento funciona como una bitácora técnica. Aquí documentaremos cada a
 **Fase:** 3 (Control de Acceso Basado en Atributos - ABAC)
 **Estado:** Completado ✅
 
+---
+
+## Avance 10: Inventario y Reglas Dinámicas (Fase ABAC)
+**Fase:** 3 (Control de Acceso Basado en Atributos - ABAC)
+**Estado:** Completado ✅
+
 **Acciones Técnicas Realizadas:**
-1. **Modelado (storeModel.js):**
-   - Construcción del CRUD para el registro físico y lógico de las Sucursales de Mainroot.
-   - Restricciones de PostgreSQL activadas: No se puede eliminar una tienda si tiene usuarios o productos anclados a ella.
-2. **Capa Controladora y Rutas:**
-   - Creados los endpoints `GET`, `POST`, `PUT` y `DELETE` bajo la ruta `/api/stores`.
-   - Estas rutas están protegidas globalmente por el token JWT.
-3. **Propósito en la Arquitectura Zero Trust:**
-   - Esta entidad es el pilar del ABAC. El atributo "Tienda" permitirá que nuestro próximo módulo (Inventario/Productos) sepa matemáticamente si un usuario `Gerente` que intenta editar un producto tiene permitido hacerlo según su ubicación de trabajo.
+1. **Modelado (productModel.js):**
+   - Construcción del CRUD de productos optimizado (`COALESCE` en SQL para actualizaciones parciales eficaces).
+   - Capacidad de filtrar productos por el ID de la tienda automáticamente a nivel base de datos.
+2. **Capa ABAC Geográfica (`canManageProduct`):**
+   - Se diseñó un validador que intercepta intentos de alteración.
+   - Si el `tienda_id` inyectado en el JWT del empleado *NO COINCIDE* con el `tienda_id` del producto en la Base de Datos, el sistema lanza un error `403 Forbidden` abortando la transacción.
+   - Excepción diseñada: Los perfiles `Admin` tienen pase libre (Jurisdicción Global).
+3. **Capa RBAC Microscópica:**
+   - Adicional a la ubicación, se inyectó una regla al endpoint de actualización: Si un usuario con el rol de `Empleado` intenta modificar el campo `precio`, la transacción es denegada (`403`).
+4. **Visibilidad ABAC:**
+   - Al consultar productos (`GET`), si un usuario es local, el controlador intercepta la ruta y automáticamente inyecta un filtro en el WHERE de SQL para devolverle **solo los productos de su tienda**. Un `Admin` recibe todos los productos.
