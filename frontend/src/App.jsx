@@ -4,39 +4,34 @@ import LoginPage from './pages/LoginPage.jsx';
 import MfaPage from './pages/MfaPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
+import InventoryPage from './pages/InventoryPage.jsx';
+import StoresPage from './pages/StoresPage.jsx';
+import StaffPage from './pages/StaffPage.jsx';
+import AuditPage from './pages/AuditPage.jsx';
+import RolesPage from './pages/RolesPage.jsx';
 
 export const ThemeContext = createContext();
 
-// HOC para proteger rutas privadas
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('mainroot_token');
-  if (!token) {
-    return <Navigate to="/" />;
-  }
+  if (!token) return <Navigate to="/" />;
   return children;
 };
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem('mainroot_theme');
-    if (savedTheme) return savedTheme === 'dark';
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const s = localStorage.getItem('mainroot_theme');
+    if (s) return s === 'dark';
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches;
   });
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.body.classList.add('dark');
-      localStorage.setItem('mainroot_theme', 'dark');
-    } else {
-      document.body.classList.remove('dark');
-      localStorage.setItem('mainroot_theme', 'light');
-    }
+    document.body.classList.toggle('dark', isDarkMode);
+    localStorage.setItem('mainroot_theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
-
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
+    <ThemeContext.Provider value={{ isDarkMode, toggleTheme: () => setIsDarkMode(!isDarkMode) }}>
       <BrowserRouter>
         <Routes>
           {/* Rutas Públicas */}
@@ -46,6 +41,11 @@ const App = () => {
           
           {/* Rutas Protegidas */}
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
+          <Route path="/stores" element={<ProtectedRoute><StoresPage /></ProtectedRoute>} />
+          <Route path="/staff" element={<ProtectedRoute><StaffPage /></ProtectedRoute>} />
+          <Route path="/audit" element={<ProtectedRoute><AuditPage /></ProtectedRoute>} />
+          <Route path="/roles" element={<ProtectedRoute><RolesPage /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </ThemeContext.Provider>
