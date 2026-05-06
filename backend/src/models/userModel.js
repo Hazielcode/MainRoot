@@ -17,6 +17,23 @@ class UserModel {
     const result = await query(sql, [email]);
     return result.rows[0];
   }
+
+  async findById(id) {
+    const sql = `SELECT * FROM usuarios WHERE id = $1;`;
+    const result = await query(sql, [id]);
+    return result.rows[0];
+  }
+
+  async updateMfa(userId, secret, habilitado) {
+    const sql = `
+      UPDATE usuarios 
+      SET mfa_secret = $1, mfa_habilitado = $2 
+      WHERE id = $3 
+      RETURNING id, email, mfa_habilitado;
+    `;
+    const result = await query(sql, [secret, habilitado, userId]);
+    return result.rows[0];
+  }
 }
 
 export default new UserModel();
