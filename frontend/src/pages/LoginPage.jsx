@@ -1,21 +1,52 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../App.jsx';
+import api from '../services/api.js';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  // Consumimos el contexto para el botón de Dark/Light mode
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  
+  // Estados para controlar los inputs y el feedback de la API
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Intentando iniciar sesión en el entorno corporativo...');
+    setIsLoading(true);
+    setErrorMsg('');
+    
+    try {
+      // 1. Enviamos credenciales al backend
+      const response = await api.post('/auth/login', { email, password });
+      
+      // 2. ¿Tiene MFA activado?
+      if (response.data.mfa_required) {
+        setErrorMsg('Atención: Su cuenta requiere código MFA. (Módulo MFA web en construcción).');
+        // Más adelante, aquí abriremos un modal para pedir el código de 6 dígitos.
+      } else {
+        // 3. Login exitoso -> Guardamos el JWT y redireccionamos al Dashboard
+        localStorage.setItem('mainroot_token', response.data.token);
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      // Capturamos el mensaje de error de nuestro backend (Ej: "Contraseña incorrecta")
+      if (error.response && error.response.data) {
+        setErrorMsg(error.response.data.error || 'Credenciales inválidas');
+      } else {
+        setErrorMsg('Error de red: ¿Está encendido el servidor backend?');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       
-      {/* Columna Izquierda - Branding Corporativo (Estilo SaaS Enterprise) */}
+      {/* Columna Izquierda - Branding Corporativo */}
       <div 
         className="branding-panel"
         style={{ 
@@ -46,7 +77,6 @@ const LoginPage = () => {
           </p>
         </div>
         
-        {/* Decoración geométrica sutil para darle el toque corporativo */}
         <div style={{
           position: 'absolute',
           bottom: '-20%', right: '-10%', width: '600px', height: '600px',
@@ -65,26 +95,25 @@ const LoginPage = () => {
         backgroundColor: 'var(--bg-primary)'
       }}>
         
-        {/* Toggle Theme Switcher */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
           <button onClick={toggleTheme} className="btn-icon" title="Alternar Apariencia">
             {isDarkMode ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
           </button>
         </div>
 
-        {/* Contenedor del Formulario Centrado */}
-        <div style={{ 
-          flex: 1, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center' 
-        }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '420px', padding: '2.5rem' }}>
             
             <div style={{ marginBottom: '2rem' }}>
               <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Acceso al Sistema</h2>
               <p className="text-secondary">Ingrese sus credenciales corporativas</p>
             </div>
+
+            {errorMsg && (
+              <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '0.75rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                {errorMsg}
+              </div>
+            )}
 
             <form onSubmit={handleLogin}>
               <div className="input-group">
@@ -94,6 +123,8 @@ const LoginPage = () => {
                   className="input-control" 
                   placeholder="usuario@empresa.com" 
                   required 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -104,6 +135,8 @@ const LoginPage = () => {
                   className="input-control" 
                   placeholder="••••••••" 
                   required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
 
@@ -117,8 +150,8 @@ const LoginPage = () => {
                 </a>
               </div>
 
-              <button type="submit" className="btn btn-primary w-full">
-                Iniciar Sesión Segura
+              <button type="submit" className="btn btn-primary w-full" disabled={isLoading}>
+                {isLoading ? 'Autenticando...' : 'Iniciar Sesión Segura'}
               </button>
             </form>
 
@@ -129,7 +162,6 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Regla CSS inyectada para hacerlo Responsivo */}
       <style>{`
         @media (max-width: 900px) {
           .branding-panel {
