@@ -44,12 +44,20 @@ Este documento funciona como una bitácora técnica. Aquí documentaremos cada a
 **Fase:** 2 (Autorización, Roles y Permisos)
 **Estado:** Completado ✅
 
+---
+
+## Avance 8: Gestión Administrativa de Usuarios y Asignación de Roles
+**Fase:** 2 (Autorización, Roles y Permisos)
+**Estado:** Completado ✅
+
 **Acciones Técnicas Realizadas:**
-1. **Creación de `roleModel.js`**:
-   - Implementado el CRUD completo de Roles comunicándose directamente con PostgreSQL.
-   - Si se intenta eliminar un Rol que un usuario ya tiene asignado, la base de datos abortará la transacción para evitar corrupción de datos (Restricción de Integridad).
-2. **Creación de `roleController.js`**:
-   - Intercepta los errores de BD (códigos `23505` y `23503`) y los transforma en mensajes limpios (400 y 409).
-3. **Creación de `rbacMiddleware.js` (Preparación)**:
-   - Se construyó el middleware `requireRole(['Admin'])` que en la próxima fase se activará para evitar que usuarios comunes manipulen roles.
-4. **Endpoint Seguro**: `/api/roles` ya está protegido por nuestro `authMiddleware`, solo usuarios con JWT válido pueden ejecutar peticiones.
+1. **Ampliación de `userModel.js`**:
+   - `findAll()`: Creada consulta avanzada con `LEFT JOIN` múltiple y agregación JSON (`json_agg`) para devolver a cada usuario con un Array limpio de sus roles asignados.
+   - `assignRole()`: Insert en la tabla pivote `usuario_roles` interceptando conflictos silenciosamente.
+   - `toggleActiveStatus()`: Lógica para "Soft Delete" (Desactivar en vez de borrar) alineado al patrón Zero Trust.
+2. **Capa de Control y Endpoints (`userController.js` y `userRoutes.js`)**:
+   - `GET /api/users`: Lista al personal y sus roles.
+   - `POST /api/users/:id/roles`: Permite a los Admins otorgar cargos.
+   - `PATCH /api/users/:id/status`: Revoca el acceso bloqueando la cuenta (con protección para evitar que el admin se bloquee a sí mismo).
+3. **Seguridad**:
+   - Rutas envueltas en el escudo JWT. En la próxima fase, al iniciar pruebas, activaremos el `requireRole(['Admin'])` para bloquear el paso a los empleados normales.
