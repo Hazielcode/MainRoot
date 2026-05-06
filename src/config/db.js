@@ -1,0 +1,38 @@
+import pkg from 'pg';
+const { Pool } = pkg;
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// Configuración del Pool de conexiones para maximizar rendimiento
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  max: 20, // Máximo de clientes en el pool
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+
+pool.on('connect', () => {
+  // console.log('[Mainroot] 📦 Conexión temporal establecida (pool)');
+});
+
+pool.on('error', (err) => {
+  console.error('[Mainroot] ❌ Error inesperado en el pool de PostgreSQL:', err);
+  process.exit(-1);
+});
+
+// Función wrapper para queries seguras
+export const query = async (text, params) => {
+  const start = Date.now();
+  const res = await pool.query(text, params);
+  const duration = Date.now() - start;
+  // Descomentar para debug de consultas lentas
+  // console.log(`[DB] Executed query: { text: ${text}, duration: ${duration}ms, rows: ${res.rowCount} }`);
+  return res;
+};
+
+export default pool;
