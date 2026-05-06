@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 
 import authRoutes from './routes/authRoutes.js';
+import roleRoutes from './routes/roleRoutes.js';
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(morgan('dev')); // Logs de peticiones HTTP en consola
 
 // Rutas de la Aplicación
 app.use('/api/auth', authRoutes); // Endpoints de Autenticación (Login, Registro)
+app.use('/api/roles', roleRoutes); // Endpoints de Roles (CRUD)
 
 // Endpoints Base para Testeo Inicial
 app.get('/api/health', (req, res) => {

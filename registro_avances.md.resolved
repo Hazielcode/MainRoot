@@ -4,27 +4,69 @@ Este documento funciona como una bitácora técnica. Aquí documentaremos cada a
 
 ---
 
-## Avance 1: Setup del Backend y Arquitectura Limpia
+## Avance 1: Setup del Backend, Git y Arquitectura Limpia
 **Fase:** 1 (Autenticación y Seguridad Perimetral)
-**Estado:** En Progreso
+**Estado:** Completado ✅
+
+---
+
+## Avance 2: Diseño de Base de Datos y Configuración (PostgreSQL)
+**Fase:** 1 y 2 (Preparación de Autenticación y RBAC)
+**Estado:** Completado ✅
+
+---
+
+## Avance 3: Reestructuración a Arquitectura Monorepo
+**Fase:** Arquitectura de Élite
+**Estado:** Completado ✅
+
+---
+
+## Avance 4: Lógica Base de Autenticación y Cifrado (Registro y Login)
+**Fase:** 1 (Autenticación y Seguridad Perimetral)
+**Estado:** Completado ✅
 
 **Acciones Técnicas Realizadas:**
-1. Inicialización del proyecto Node.js (`npm init -y`).
-2. Configuración del proyecto para usar **ES6 Modules** (`"type": "module"`).
-3. Instalación de dependencias de Seguridad y Core:
-   - `express` (Framework web).
-   - `bcrypt` (Hashing de contraseñas).
-   - `jsonwebtoken` (Autenticación sin estado).
-   - `otplib` (Generación y validación de TOTP para MFA).
-   - `pg` (Cliente de PostgreSQL).
-   - `cors` y `helmet` (Seguridad de cabeceras HTTP).
-   - `dotenv` (Variables de entorno).
-4. Instalación de herramientas de desarrollo: `nodemon`, `morgan` (HTTP logger).
-5. Creación de la estructura de directorios para la **Arquitectura por Capas**:
-   - `/src/config` (Conexiones a BD, variables).
-   - `/src/controllers` (Capa de transporte HTTP).
-   - `/src/services` (Lógica de negocio y reglas ABAC).
-   - `/src/models` (Esquemas de BD / Entidades).
-   - `/src/middlewares` (Filtros de seguridad, RBAC).
-   - `/src/routes` (Definición de endpoints).
-   - `/src/utils` (Helpers y utilidades genéricas).
+1. **Modelado (PostgreSQL):** Creación de `userModel.js` con soporte nativo de queries seguras y prevención de inyección SQL.
+2. **Capa de Negocio (authService.js):**
+   - Hashing seguro implementado en `bcrypt` (12 rondas).
+   - Validación robusta de contraseña en backend vía RegEx.
+   - Emisión y firmado de Tokens de Sesión (JWT).
+3. **Capa de Transporte:** Implementación de endpoints `/api/auth/register` y `/api/auth/login`.
+
+---
+
+## Avance 5: Autenticación Multi-Factor (MFA / TOTP)
+**Fase:** 1 (Autenticación y Seguridad Perimetral)
+**Estado:** Completado ✅
+
+**Acciones Técnicas Realizadas:**
+1. **Instalación de Dependencia Adicional:** Integración de la librería `qrcode` para generar las imágenes legibles por Google Authenticator.
+2. **Capa de Utilidades (mfaUtils.js):** 
+   - Creación de motor de generación de secretos TOTP.
+   - Generación de URIs compatibles con `otpauth://`.
+   - Conversión a base64 DataURL (Código QR visual) directo desde el backend.
+3. **Capa de Datos:** Extensión de `userModel.js` añadiendo métodos `findById` y `updateMfa` para guardar el secreto semilla en la base de datos de PostgreSQL.
+4. **Capa de Transporte (mfaController.js):**
+   - Endpoint **`/mfa/setup`**: Inicia el proceso y devuelve el código QR de configuración.
+   - Endpoint **`/mfa/enable`**: Verifica matemáticamente el código para encender permanentemente el MFA en la cuenta.
+   - Endpoint **`/mfa/validate`**: Intercepta logins bloqueados por MFA, verifica el TOTP en vivo y si es exitoso, expide el JWT de 8 horas para dar acceso al sistema.
+
+---
+
+## Avance 6: Escudo Protector de Rutas (Middleware de Autenticación)
+**Fase:** 1 (Autenticación y Seguridad Perimetral)
+**Estado:** Completado ✅
+
+**Acciones Técnicas Realizadas:**
+1. **Creación de `authMiddleware.js`**:
+   - Implementado para interceptar peticiones HTTP.
+   - Requiere obligatoriamente un token JWT válido en la cabecera `Authorization: Bearer <token>`.
+   - Si el token está caducado (`TokenExpiredError`) o manipulado, la petición es rechazada (`401 / 403`).
+2. **Inyección de Identidad (req.user)**:
+   - Al validar el JWT, el middleware decodifica el payload y lo guarda en `req.user`.
+   - Esto prepara el terreno para la Fase 2 (RBAC) y Fase 3 (ABAC), ya que cualquier controlador sabrá instantáneamente el ID, Email y Tienda del usuario que hace la petición.
+3. **Endpoint de Prueba**:
+   - Creado endpoint `/api/auth/me` para probar que el JWT se procesa correctamente.
+
+> **HITO ALCANZADO:** La Fase 1 (Autenticación Base y MFA) ha finalizado oficialmente. El sistema tiene una muralla perimetral infranqueable.
