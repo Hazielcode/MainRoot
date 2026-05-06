@@ -50,14 +50,18 @@ Este documento funciona como una bitácora técnica. Aquí documentaremos cada a
 **Fase:** 2 (Autorización, Roles y Permisos)
 **Estado:** Completado ✅
 
+---
+
+## Avance 9: Fundamentos ABAC - Módulo de Tiendas
+**Fase:** 3 (Control de Acceso Basado en Atributos - ABAC)
+**Estado:** Completado ✅
+
 **Acciones Técnicas Realizadas:**
-1. **Ampliación de `userModel.js`**:
-   - `findAll()`: Creada consulta avanzada con `LEFT JOIN` múltiple y agregación JSON (`json_agg`) para devolver a cada usuario con un Array limpio de sus roles asignados.
-   - `assignRole()`: Insert en la tabla pivote `usuario_roles` interceptando conflictos silenciosamente.
-   - `toggleActiveStatus()`: Lógica para "Soft Delete" (Desactivar en vez de borrar) alineado al patrón Zero Trust.
-2. **Capa de Control y Endpoints (`userController.js` y `userRoutes.js`)**:
-   - `GET /api/users`: Lista al personal y sus roles.
-   - `POST /api/users/:id/roles`: Permite a los Admins otorgar cargos.
-   - `PATCH /api/users/:id/status`: Revoca el acceso bloqueando la cuenta (con protección para evitar que el admin se bloquee a sí mismo).
-3. **Seguridad**:
-   - Rutas envueltas en el escudo JWT. En la próxima fase, al iniciar pruebas, activaremos el `requireRole(['Admin'])` para bloquear el paso a los empleados normales.
+1. **Modelado (storeModel.js):**
+   - Construcción del CRUD para el registro físico y lógico de las Sucursales de Mainroot.
+   - Restricciones de PostgreSQL activadas: No se puede eliminar una tienda si tiene usuarios o productos anclados a ella.
+2. **Capa Controladora y Rutas:**
+   - Creados los endpoints `GET`, `POST`, `PUT` y `DELETE` bajo la ruta `/api/stores`.
+   - Estas rutas están protegidas globalmente por el token JWT.
+3. **Propósito en la Arquitectura Zero Trust:**
+   - Esta entidad es el pilar del ABAC. El atributo "Tienda" permitirá que nuestro próximo módulo (Inventario/Productos) sepa matemáticamente si un usuario `Gerente` que intenta editar un producto tiene permitido hacerlo según su ubicación de trabajo.
