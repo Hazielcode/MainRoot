@@ -34,6 +34,40 @@ class UserModel {
     const result = await query(sql, [secret, habilitado, userId]);
     return result.rows[0];
   }
+
+  // --- MÉTODOS DE ADMINISTRACIÓN (FASE 2: RBAC) ---
+
+  async findAll() {
+    // Retorna todos los usuarios e incluye un Array con los roles que tienen asignados usando JSON_AGG
+    const sql = `
+      SELECT u.id, u.email, u.nombre_completo, u.tienda_id, u.mfa_habilitado, u.activo, u.fecha_creacion,
+             json_agg(r.nombre) FILTER (WHERE r.nombre IS NOT NULL) as roles
+      FROM usuarios u
+      LEFT JOIN usuario_roles ur ON u.id = ur.usuario_id
+      LEFT JOIN roles r ON ur.rol_id = r.id
+      GROUP BY u.id
+      ORDER BY u.id ASC;
+    `;
+    const result = await query(sql);
+    return result.rows;
+  }
+
+  async assignRole(usuarioId, rolId, asignadoPorId) {
+    const sql = `
+      INSERT INTO usuario_roles (usuario_id, rol_id, asignado_por)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (usuario_id, rol_id) DO NOTHING
+      RETURNING *;
+    `;
+    const result = await query(sql, [usuarioId, rolId, asignadoPorId]);
+    return result.rows[0];
+  }
+
+  async toggleActiveStatus(id, estadoActivo) {
+    const sql = `UPDATE usuarios SET activo = $1 WHERE id = $2 RETURNING id, email, activo;`;
+    const result = await query(sql, [estadoActivo, id]);
+    return result.rows[0];
+  }
 }
 
 export default new UserModel();

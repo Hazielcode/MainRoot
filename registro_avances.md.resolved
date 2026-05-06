@@ -26,31 +26,11 @@ Este documento funciona como una bitácora técnica. Aquí documentaremos cada a
 **Fase:** 1 (Autenticación y Seguridad Perimetral)
 **Estado:** Completado ✅
 
-**Acciones Técnicas Realizadas:**
-1. **Modelado (PostgreSQL):** Creación de `userModel.js` con soporte nativo de queries seguras y prevención de inyección SQL.
-2. **Capa de Negocio (authService.js):**
-   - Hashing seguro implementado en `bcrypt` (12 rondas).
-   - Validación robusta de contraseña en backend vía RegEx.
-   - Emisión y firmado de Tokens de Sesión (JWT).
-3. **Capa de Transporte:** Implementación de endpoints `/api/auth/register` y `/api/auth/login`.
-
 ---
 
 ## Avance 5: Autenticación Multi-Factor (MFA / TOTP)
 **Fase:** 1 (Autenticación y Seguridad Perimetral)
 **Estado:** Completado ✅
-
-**Acciones Técnicas Realizadas:**
-1. **Instalación de Dependencia Adicional:** Integración de la librería `qrcode` para generar las imágenes legibles por Google Authenticator.
-2. **Capa de Utilidades (mfaUtils.js):** 
-   - Creación de motor de generación de secretos TOTP.
-   - Generación de URIs compatibles con `otpauth://`.
-   - Conversión a base64 DataURL (Código QR visual) directo desde el backend.
-3. **Capa de Datos:** Extensión de `userModel.js` añadiendo métodos `findById` y `updateMfa` para guardar el secreto semilla en la base de datos de PostgreSQL.
-4. **Capa de Transporte (mfaController.js):**
-   - Endpoint **`/mfa/setup`**: Inicia el proceso y devuelve el código QR de configuración.
-   - Endpoint **`/mfa/enable`**: Verifica matemáticamente el código para encender permanentemente el MFA en la cuenta.
-   - Endpoint **`/mfa/validate`**: Intercepta logins bloqueados por MFA, verifica el TOTP en vivo y si es exitoso, expide el JWT de 8 horas para dar acceso al sistema.
 
 ---
 
@@ -58,15 +38,18 @@ Este documento funciona como una bitácora técnica. Aquí documentaremos cada a
 **Fase:** 1 (Autenticación y Seguridad Perimetral)
 **Estado:** Completado ✅
 
-**Acciones Técnicas Realizadas:**
-1. **Creación de `authMiddleware.js`**:
-   - Implementado para interceptar peticiones HTTP.
-   - Requiere obligatoriamente un token JWT válido en la cabecera `Authorization: Bearer <token>`.
-   - Si el token está caducado (`TokenExpiredError`) o manipulado, la petición es rechazada (`401 / 403`).
-2. **Inyección de Identidad (req.user)**:
-   - Al validar el JWT, el middleware decodifica el payload y lo guarda en `req.user`.
-   - Esto prepara el terreno para la Fase 2 (RBAC) y Fase 3 (ABAC), ya que cualquier controlador sabrá instantáneamente el ID, Email y Tienda del usuario que hace la petición.
-3. **Endpoint de Prueba**:
-   - Creado endpoint `/api/auth/me` para probar que el JWT se procesa correctamente.
+---
 
-> **HITO ALCANZADO:** La Fase 1 (Autenticación Base y MFA) ha finalizado oficialmente. El sistema tiene una muralla perimetral infranqueable.
+## Avance 7: Módulo de Roles y Base para RBAC (Fase 2)
+**Fase:** 2 (Autorización, Roles y Permisos)
+**Estado:** Completado ✅
+
+**Acciones Técnicas Realizadas:**
+1. **Creación de `roleModel.js`**:
+   - Implementado el CRUD completo de Roles comunicándose directamente con PostgreSQL.
+   - Si se intenta eliminar un Rol que un usuario ya tiene asignado, la base de datos abortará la transacción para evitar corrupción de datos (Restricción de Integridad).
+2. **Creación de `roleController.js`**:
+   - Intercepta los errores de BD (códigos `23505` y `23503`) y los transforma en mensajes limpios (400 y 409).
+3. **Creación de `rbacMiddleware.js` (Preparación)**:
+   - Se construyó el middleware `requireRole(['Admin'])` que en la próxima fase se activará para evitar que usuarios comunes manipulen roles.
+4. **Endpoint Seguro**: `/api/roles` ya está protegido por nuestro `authMiddleware`, solo usuarios con JWT válido pueden ejecutar peticiones.
