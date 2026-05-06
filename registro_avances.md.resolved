@@ -1,0 +1,30 @@
+# Registro de Avances (Changelog) - Proyecto Mainroot
+
+Este documento funciona como una bitácora técnica. Aquí documentaremos cada avance, configuración y módulo desarrollado para mantener el control y la trazabilidad del proyecto.
+
+---
+
+## Avance 1: Setup del Backend y Arquitectura Limpia
+**Fase:** 1 (Autenticación y Seguridad Perimetral)
+**Estado:** En Progreso
+
+**Acciones Técnicas Realizadas:**
+1. Inicialización del proyecto Node.js (`npm init -y`).
+2. Configuración del proyecto para usar **ES6 Modules** (`"type": "module"`).
+3. Instalación de dependencias de Seguridad y Core:
+   - `express` (Framework web).
+   - `bcrypt` (Hashing de contraseñas).
+   - `jsonwebtoken` (Autenticación sin estado).
+   - `otplib` (Generación y validación de TOTP para MFA).
+   - `pg` (Cliente de PostgreSQL).
+   - `cors` y `helmet` (Seguridad de cabeceras HTTP).
+   - `dotenv` (Variables de entorno).
+4. Instalación de herramientas de desarrollo: `nodemon`, `morgan` (HTTP logger).
+5. Creación de la estructura de directorios para la **Arquitectura por Capas**:
+   - `/src/config` (Conexiones a BD, variables).
+   - `/src/controllers` (Capa de transporte HTTP).
+   - `/src/services` (Lógica de negocio y reglas ABAC).
+   - `/src/models` (Esquemas de BD / Entidades).
+   - `/src/middlewares` (Filtros de seguridad, RBAC).
+   - `/src/routes` (Definición de endpoints).
+   - `/src/utils` (Helpers y utilidades genéricas).
