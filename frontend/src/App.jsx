@@ -5,13 +5,14 @@ import DashboardPage from './pages/DashboardPage.jsx';
 
 export const ThemeContext = createContext();
 
-// HOC (Higher Order Component) para proteger rutas privadas
+// HOC para proteger rutas privadas
+// NOTA: Temporalmente deshabilitado para desarrollo visual. 
+// Cuando conectemos el backend, activamos la validación del JWT.
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('mainroot_token');
-  if (!token) {
-    // Si no hay token, lo mandamos al login inmediatamente
-    return <Navigate to="/" />;
-  }
+  // const token = localStorage.getItem('mainroot_token');
+  // if (!token) {
+  //   return <Navigate to="/" />;
+  // }
   return children;
 };
 
@@ -39,8 +40,6 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-          
-          {/* Ruta Protegida: El Dashboard del Sistema */}
           <Route 
             path="/dashboard" 
             element={
