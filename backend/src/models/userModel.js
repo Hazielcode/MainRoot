@@ -63,6 +63,16 @@ class UserModel {
     return result.rows[0];
   }
 
+  async getRolesByUserId(userId) {
+    const sql = `
+      SELECT r.nombre FROM roles r
+      INNER JOIN usuario_roles ur ON r.id = ur.rol_id
+      WHERE ur.usuario_id = $1;
+    `;
+    const result = await query(sql, [userId]);
+    return result.rows.map(r => r.nombre);
+  }
+
   async toggleActiveStatus(id, estadoActivo) {
     const sql = `UPDATE usuarios SET activo = $1 WHERE id = $2 RETURNING id, email, activo;`;
     const result = await query(sql, [estadoActivo, id]);
