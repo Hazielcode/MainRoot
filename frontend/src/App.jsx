@@ -12,9 +12,11 @@ import RolesPage from './pages/RolesPage.jsx';
 
 export const ThemeContext = createContext();
 
+// TEMPORAL: Protección desactivada para desarrollo visual.
+// Cuando conectemos el backend, descomentar la validación del JWT.
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('mainroot_token');
-  if (!token) return <Navigate to="/" />;
+  // const token = localStorage.getItem('mainroot_token');
+  // if (!token) return <Navigate to="/" />;
   return children;
 };
 

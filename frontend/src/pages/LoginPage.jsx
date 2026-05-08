@@ -6,8 +6,6 @@ import api from '../services/api.js';
 const LoginPage = () => {
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
-  
-  // Estados para controlar los inputs y el feedback de la API
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -15,103 +13,78 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setErrorMsg('');
-    
+    setIsLoading(true); setErrorMsg('');
     try {
-      // 1. Enviamos credenciales al backend
       const response = await api.post('/auth/login', { email, password });
-      
-      // 2. ¿Tiene MFA activado?
       if (response.data.mfaRequired) {
-        // Redirigimos a la pantalla de verificación MFA pasando los datos necesarios
         navigate('/mfa', { state: { email: response.data.email, userId: response.data.userId } });
         return;
       } else {
-        // 3. Login exitoso -> Guardamos el JWT y redireccionamos al Dashboard
         localStorage.setItem('mainroot_token', response.data.token);
         navigate('/dashboard');
       }
     } catch (error) {
-      // Capturamos el mensaje de error de nuestro backend (Ej: "Contraseña incorrecta")
       if (error.response && error.response.data) {
         setErrorMsg(error.response.data.error || 'Credenciales inválidas');
       } else {
         setErrorMsg('Error de red: ¿Está encendido el servidor backend?');
       }
-    } finally {
-      setIsLoading(false);
-    }
+    } finally { setIsLoading(false); }
   };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
-      
-      {/* Columna Izquierda - Branding Corporativo */}
-      <div 
-        className="branding-panel"
-        style={{ 
-          flex: 1.2, 
-          backgroundColor: 'var(--accent-primary)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: '4rem',
-          color: 'white',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        <div style={{ position: 'relative', zIndex: 10, maxWidth: '600px' }}>
-          <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '40px', height: '40px', backgroundColor: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: 'var(--accent-primary)', fontWeight: 'bold', fontSize: '24px' }}>M</span>
+      {/* Panel Izquierdo — Branding con gradiente Paqari */}
+      <div className="branding-panel" style={{
+        flex: 1.3,
+        background: 'linear-gradient(160deg, #367CFC 0%, #6C27D2 60%, #5d329b 100%)',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        padding: '5rem', color: 'white', position: 'relative', overflow: 'hidden'
+      }}>
+        <div style={{ position: 'relative', zIndex: 10, maxWidth: '550px' }}>
+          <div style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ width: '48px', height: '48px', backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: 'white', fontWeight: '800', fontSize: '1.4rem' }}>M</span>
             </div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'white', margin: 0 }}>Mainroot</h2>
+            <span style={{ fontSize: '1.4rem', fontWeight: 700, color: 'white', letterSpacing: '-0.02em' }}>Mainroot</span>
           </div>
 
-          <h1 style={{ fontSize: '3.5rem', marginBottom: '1.5rem', color: '#ffffff', lineHeight: 1.1 }}>
-            Gestión de Inventario<br/>Enterprise.
+          <h1 style={{ fontSize: '3.2rem', fontWeight: 800, marginBottom: '1.5rem', lineHeight: 1.08, letterSpacing: '-0.03em' }}>
+            Gestión de<br/>Inventario<br/>Enterprise.
           </h1>
-          <p style={{ fontSize: '1.25rem', opacity: 0.9, lineHeight: 1.6, maxWidth: '500px' }}>
+          <p style={{ fontSize: '1.1rem', opacity: 0.85, lineHeight: 1.7, maxWidth: '420px', fontWeight: 400 }}>
             Arquitectura Zero Trust, control de acceso granular y auditoría en tiempo real para operaciones seguras.
           </p>
         </div>
-        
-        <div style={{
-          position: 'absolute',
-          bottom: '-20%', right: '-10%', width: '600px', height: '600px',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%)',
-          borderRadius: '50%'
-        }}></div>
+
+        {/* Decoración de fondo */}
+        <div style={{ position: 'absolute', top: '-15%', right: '-15%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', borderRadius: '50%' }}></div>
+        <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)', borderRadius: '50%' }}></div>
+        <div style={{ position: 'absolute', bottom: '3rem', left: '5rem', fontSize: '0.85rem', opacity: 0.5 }}>
+          © {new Date().getFullYear()} Mainroot System
+        </div>
       </div>
 
-      {/* Columna Derecha - Formulario Elegante */}
-      <div style={{ 
-        flex: 1, 
-        display: 'flex', 
-        flexDirection: 'column',
-        padding: '2rem',
-        position: 'relative',
-        backgroundColor: 'var(--bg-primary)'
+      {/* Panel Derecho — Formulario */}
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        padding: '2.5rem', backgroundColor: 'var(--bg-primary)'
       }}>
-        
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
-          <button onClick={toggleTheme} className="btn-icon" title="Alternar Apariencia">
-            {isDarkMode ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+          <button onClick={toggleTheme} className="btn-ghost" style={{ width: 40, height: 40, borderRadius: '12px' }}>
+            {isDarkMode ? '☀️' : '🌙'}
           </button>
         </div>
 
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '420px', padding: '2.5rem' }}>
-            
+          <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '430px', padding: '3rem', borderRadius: '28px' }}>
             <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Acceso al Sistema</h2>
-              <p className="text-secondary">Ingrese sus credenciales corporativas</p>
+              <h2 style={{ fontSize: '1.65rem', marginBottom: '0.5rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Bienvenido</h2>
+              <p className="text-secondary" style={{ fontSize: '0.9rem' }}>Ingrese sus credenciales corporativas</p>
             </div>
 
             {errorMsg && (
-              <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '0.75rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              <div style={{ background: 'rgba(239,68,68,0.08)', color: 'var(--danger)', padding: '0.85rem 1rem', borderRadius: '14px', marginBottom: '1.5rem', fontSize: '0.85rem', border: '1px solid rgba(239,68,68,0.15)', fontWeight: 500 }}>
                 {errorMsg}
               </div>
             )}
@@ -119,62 +92,42 @@ const LoginPage = () => {
             <form onSubmit={handleLogin}>
               <div className="input-group">
                 <label className="input-label">Correo Electrónico</label>
-                <input 
-                  type="email" 
-                  className="input-control" 
-                  placeholder="usuario@empresa.com" 
-                  required 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+                <input type="email" className="input-control" placeholder="usuario@mainroot.com" required
+                  value={email} onChange={e => setEmail(e.target.value)}
+                  style={{ borderRadius: '14px', padding: '0.8rem 1.1rem' }}/>
               </div>
-
               <div className="input-group">
                 <label className="input-label">Contraseña</label>
-                <input 
-                  type="password" 
-                  className="input-control" 
-                  placeholder="••••••••" 
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <input type="password" className="input-control" placeholder="••••••••" required
+                  value={password} onChange={e => setPassword(e.target.value)}
+                  style={{ borderRadius: '14px', padding: '0.8rem 1.1rem' }}/>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                  <input type="checkbox" style={{ accentColor: 'var(--accent-primary)' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                  <input type="checkbox" style={{ accentColor: 'var(--accent-primary)', width: 16, height: 16 }} />
                   Recordar sesión
                 </label>
-                <a href="#" style={{ color: 'var(--accent-primary)', fontSize: '0.875rem', textDecoration: 'none', fontWeight: 500 }}>
+                <a href="#" style={{ color: 'var(--accent-primary)', fontSize: '0.82rem', textDecoration: 'none', fontWeight: 600 }}>
                   ¿Olvidó su contraseña?
                 </a>
               </div>
 
-              <button type="submit" className="btn btn-primary w-full" disabled={isLoading}>
-                {isLoading ? 'Autenticando...' : 'Iniciar Sesión Segura'}
+              <button type="submit" className="btn btn-primary w-full" disabled={isLoading}
+                style={{ padding: '0.85rem', fontSize: '0.92rem', borderRadius: '14px' }}>
+                {isLoading ? 'Autenticando...' : 'Iniciar Sesión'}
               </button>
             </form>
 
-            <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            <div style={{ marginTop: '1.75rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
               ¿No tiene cuenta?{' '}
-              <Link to="/register" style={{ color: 'var(--accent-primary)', fontWeight: 500, textDecoration: 'none' }}>Regístrese aquí</Link>
-            </div>
-
-            <div style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-secondary)', opacity: 0.7 }}>
-              Mainroot System v1.0.0 &copy; {new Date().getFullYear()}
+              <Link to="/register" style={{ color: 'var(--accent-primary)', fontWeight: 600, textDecoration: 'none' }}>Regístrese aquí</Link>
             </div>
           </div>
         </div>
       </div>
 
-      <style>{`
-        @media (max-width: 900px) {
-          .branding-panel {
-            display: none !important;
-          }
-        }
-      `}</style>
+      <style>{`@media (max-width: 900px) { .branding-panel { display: none !important; } }`}</style>
     </div>
   );
 };
