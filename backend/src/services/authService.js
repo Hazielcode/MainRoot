@@ -12,10 +12,10 @@ const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutos
 
 class AuthService {
   async register(data) {
-    const { email, password, nombre_completo, tienda_id } = data;
+    const { email, password, nombres, apellidos, telefono, fecha_nacimiento, tienda_id } = data;
 
-    if (!email || !password || !nombre_completo) {
-      throw new Error('Email, password y nombre completo son obligatorios.');
+    if (!email || !password || !nombres || !apellidos) {
+      throw new Error('Email, password, nombres y apellidos son obligatorios.');
     }
 
     // Validación de complejidad de contraseña Corporativa (Mínimo 8 chars, 1 mayúscula, 1 número, 1 carácter especial)
@@ -35,7 +35,10 @@ class AuthService {
     const newUser = await userModel.create({
       email,
       password_hash,
-      nombre_completo,
+      nombres,
+      apellidos,
+      telefono,
+      fecha_nacimiento,
       tienda_id
     });
 
@@ -99,7 +102,11 @@ class AuthService {
     const userProfile = {
       id: user.id,
       email: user.email,
-      nombre_completo: user.nombre_completo,
+      nombres: user.nombres,
+      apellidos: user.apellidos,
+      nombre_completo: `${user.nombres} ${user.apellidos}`.trim(),
+      telefono: user.telefono,
+      fecha_nacimiento: user.fecha_nacimiento,
       tienda_id: user.tienda_id,
       roles: roles
     };

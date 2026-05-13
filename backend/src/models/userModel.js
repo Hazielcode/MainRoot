@@ -2,13 +2,13 @@ import { query } from '../config/db.js';
 
 class UserModel {
   async create(user) {
-    const { email, password_hash, nombre_completo, tienda_id } = user;
+    const { email, password_hash, nombres, apellidos, telefono, fecha_nacimiento, tienda_id } = user;
     const sql = `
-      INSERT INTO usuarios (email, password_hash, nombre_completo, tienda_id)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, email, nombre_completo, tienda_id, mfa_habilitado, activo, fecha_creacion;
+      INSERT INTO usuarios (email, password_hash, nombres, apellidos, telefono, fecha_nacimiento, tienda_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, email, nombres, apellidos, telefono, fecha_nacimiento, tienda_id, mfa_habilitado, activo, fecha_creacion;
     `;
-    const result = await query(sql, [email, password_hash, nombre_completo, tienda_id || null]);
+    const result = await query(sql, [email, password_hash, nombres, apellidos, telefono, fecha_nacimiento || null, tienda_id || null]);
     return result.rows[0];
   }
 
@@ -40,7 +40,7 @@ class UserModel {
   async findAll() {
     // Retorna todos los usuarios e incluye un Array con los roles que tienen asignados usando JSON_AGG
     const sql = `
-      SELECT u.id, u.email, u.nombre_completo, u.tienda_id, u.mfa_habilitado, u.activo, u.fecha_creacion,
+      SELECT u.id, u.email, CONCAT(u.nombres, ' ', u.apellidos) AS nombre_completo, u.tienda_id, u.mfa_habilitado, u.activo, u.fecha_creacion,
              json_agg(json_build_object('id', r.id, 'nombre', r.nombre)) FILTER (WHERE r.nombre IS NOT NULL) as roles_detail,
              json_agg(r.nombre) FILTER (WHERE r.nombre IS NOT NULL) as roles
       FROM usuarios u
