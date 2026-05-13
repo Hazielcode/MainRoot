@@ -18,6 +18,11 @@ class AuthService {
       throw new Error('Email, password, nombres y apellidos son obligatorios.');
     }
 
+    // Restricción de dominio corporativo (§3.1 del roadmap)
+    if (!email.toLowerCase().endsWith('@mainroot.com')) {
+      throw new Error('Solo se permiten registros con correos corporativos @mainroot.com');
+    }
+
     // Validación de complejidad de contraseña Corporativa (Mínimo 8 chars, 1 mayúscula, 1 número, 1 carácter especial)
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
@@ -46,6 +51,11 @@ class AuthService {
   }
 
   async login(email, password) {
+    // Restricción de dominio corporativo en login
+    if (!email.toLowerCase().endsWith('@mainroot.com')) {
+      throw new Error('Solo se permite el ingreso con correos corporativos @mainroot.com');
+    }
+
     // === RATE LIMITING / ACCOUNT LOCKOUT (§3.2 del roadmap) ===
     const attemptKey = email.toLowerCase();
     const record = loginAttempts.get(attemptKey);

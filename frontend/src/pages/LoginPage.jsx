@@ -15,6 +15,10 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!email.toLowerCase().endsWith('@mainroot.com')) {
+      setErrorMsg('Debe usar un correo corporativo @mainroot.com');
+      return;
+    }
     setIsLoading(true); setErrorMsg('');
     try {
       const response = await api.post('/auth/login', { email, password });

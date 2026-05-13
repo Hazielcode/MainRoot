@@ -29,6 +29,10 @@ const RegisterPage = () => {
     e.preventDefault(); setErrorMsg(''); setSuccessMsg('');
     if (!allPass) { setErrorMsg('La contraseña no cumple los requisitos.'); return; }
     if (!match) { setErrorMsg('Las contraseñas no coinciden.'); return; }
+    if (!form.email.toLowerCase().endsWith('@mainroot.com')) {
+      setErrorMsg('Solo se permite el registro con correos @mainroot.com');
+      return;
+    }
     setIsLoading(true);
     try {
       await api.post('/auth/register', { email:form.email, password:form.password, nombres:form.nombres, apellidos:form.apellidos, telefono:form.telefono, fecha_nacimiento:form.fecha_nacimiento });
