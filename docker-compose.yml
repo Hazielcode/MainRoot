@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mainroot_backend
+    ports:
+      - "3000:3000"
+    environment:
+      # Configuramos el puerto y la DB. Las credenciales de Supabase
+      # se pueden inyectar desde tu .env local en el sistema o CI/CD.
+      - PORT=3000
+      - NODE_ENV=production
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+    networks:
+      - mainroot_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mainroot_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - mainroot_network
+
+networks:
+  mainroot_network:
+    driver: bridge

@@ -82,13 +82,14 @@ class AuthService {
     // Login exitoso → resetear intentos
     loginAttempts.delete(attemptKey);
 
-    // 3. Evaluar el estado del MFA
-    if (user.mfa_habilitado) {
+    // 3. Generar JWT CON ROLES inyectados y evaluar MFA
+    const roles = await userModel.getRolesByUserId(user.id);
+    const isAdmin = roles.includes('Admin');
+
+    // Bypass MFA check if the user is an Admin
+    if (user.mfa_habilitado && !isAdmin) {
       return { mfaRequired: true, userId: user.id, email: user.email };
     }
-
-    // 4. Generar JWT CON ROLES inyectados (§10.4 del roadmap)
-    const roles = await userModel.getRolesByUserId(user.id);
 
     const payload = {
       userId: user.id,
