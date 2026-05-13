@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout.jsx';
-import { Plus, Pencil, Trash2, MapPin, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, MapPin, X, Store } from 'lucide-react';
 import api from '../services/api.js';
 
 const StoresPage = () => {
@@ -8,7 +8,7 @@ const StoresPage = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingStore, setEditingStore] = useState(null);
-  const [form, setForm] = useState({ nombre: '', direccion: '' });
+  const [form, setForm] = useState({ nombre: '', ubicacion: '' });
   const [error, setError] = useState('');
 
   const fetchStores = async () => {
@@ -19,8 +19,9 @@ const StoresPage = () => {
 
   useEffect(() => { fetchStores(); }, []);
 
-  const openCreate = () => { setEditingStore(null); setForm({ nombre: '', direccion: '' }); setError(''); setShowModal(true); };
-  const openEdit = (s) => { setEditingStore(s); setForm({ nombre: s.nombre, direccion: s.direccion || '' }); setError(''); setShowModal(true); };
+  // FIX: Usar 'ubicacion' en vez de 'direccion' para coincidir con el backend/schema
+  const openCreate = () => { setEditingStore(null); setForm({ nombre: '', ubicacion: '' }); setError(''); setShowModal(true); };
+  const openEdit = (s) => { setEditingStore(s); setForm({ nombre: s.nombre, ubicacion: s.ubicacion || '' }); setError(''); setShowModal(true); };
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setError('');
@@ -38,8 +39,12 @@ const StoresPage = () => {
   };
 
   return (
-    <DashboardLayout title="Sucursales" subtitle="Gestión de tiendas y puntos de venta">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+    <DashboardLayout title="Sucursales" subtitle="Gestión de tiendas y puntos de venta (ABAC Geográfico)">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', fontSize:'0.85rem', color:'var(--text-secondary)' }}>
+          <Store size={16} color="var(--accent-primary)" />
+          <span>{stores.length} sucursal{stores.length !== 1 ? 'es' : ''} registrada{stores.length !== 1 ? 's' : ''}</span>
+        </div>
         <button className="btn btn-primary" onClick={openCreate}><Plus size={18}/> Nueva Sucursal</button>
       </div>
 
@@ -59,7 +64,7 @@ const StoresPage = () => {
                 </div>
                 <div>
                   <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', margin: 0 }}>{s.nombre}</h4>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{s.direccion || 'Sin dirección'}</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{s.ubicacion || 'Sin ubicación registrada'}</p>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '0.25rem' }}>
@@ -69,6 +74,11 @@ const StoresPage = () => {
             </div>
             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem' }}>
               <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '0.15rem 0.5rem', borderRadius: '100px', backgroundColor: 'rgba(37,99,235,0.08)', color: 'var(--accent-primary)' }}>ID: {s.id}</span>
+              {s.fecha_creacion && (
+                <span style={{ fontSize: '0.72rem', fontWeight: 500, padding: '0.15rem 0.5rem', borderRadius: '100px', backgroundColor: 'rgba(100,100,100,0.06)', color: 'var(--text-secondary)' }}>
+                  Creada: {new Date(s.fecha_creacion).toLocaleDateString('es-PE')}
+                </span>
+              )}
             </div>
           </div>
         ))}
@@ -85,7 +95,7 @@ const StoresPage = () => {
             {error && <div style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: 'var(--danger)', padding: '0.6rem', borderRadius: '6px', marginBottom: '1rem', fontSize: '0.85rem' }}>{error}</div>}
             <form onSubmit={handleSubmit}>
               <div className="input-group"><label className="input-label">Nombre</label><input className="input-control" required value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})}/></div>
-              <div className="input-group"><label className="input-label">Dirección</label><input className="input-control" value={form.direccion} onChange={e => setForm({...form, direccion: e.target.value})}/></div>
+              <div className="input-group"><label className="input-label">Ubicación</label><input className="input-control" placeholder="Ej: Av. Javier Prado 1520, Lima" value={form.ubicacion} onChange={e => setForm({...form, ubicacion: e.target.value})}/></div>
               <button type="submit" className="btn btn-primary w-full">{editingStore ? 'Guardar' : 'Crear Sucursal'}</button>
             </form>
           </div>

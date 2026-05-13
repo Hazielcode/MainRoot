@@ -9,6 +9,9 @@ const router = Router();
 // el Controlador de Productos usa `req.user` para ejecutar las reglas ABAC.
 router.use(requireAuth);
 
+// STATS: Estadísticas para el Dashboard (Admin y Auditor)
+router.get('/stats', requireRole(['Admin', 'Auditor', 'Gerente']), productController.getStats);
+
 // READ: Admin, Gerente, Empleado y Auditor pueden consultar productos (el ABAC filtra por tienda)
 router.get('/', requireRole(['Admin', 'Gerente', 'Empleado', 'Auditor']), productController.getProducts);
 

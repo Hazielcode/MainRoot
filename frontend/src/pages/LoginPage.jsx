@@ -1,11 +1,13 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ThemeContext } from '../App.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import api from '../services/api.js';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -20,7 +22,8 @@ const LoginPage = () => {
         navigate('/mfa', { state: { email: response.data.email, userId: response.data.userId } });
         return;
       } else {
-        localStorage.setItem('mainroot_token', response.data.token);
+        // Usar AuthContext para login
+        login(response.data.token, response.data.user);
         navigate('/dashboard');
       }
     } catch (error) {

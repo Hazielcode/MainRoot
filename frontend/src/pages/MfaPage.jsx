@@ -1,6 +1,7 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ThemeContext } from '../App.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { ShieldCheck, ArrowLeft } from 'lucide-react';
 import api from '../services/api.js';
 
@@ -8,6 +9,7 @@ const MfaPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const { login } = useAuth();
   const mfaEmail = location.state?.email || '';
   const mfaUserId = location.state?.userId || null;
   const [code, setCode] = useState(['','','','','','']);
@@ -31,10 +33,17 @@ const MfaPage = () => {
     setIsLoading(true); setErrorMsg('');
     try {
       const r = await api.post('/auth/mfa/validate', { userId: mfaUserId, token: fullCode });
-      localStorage.setItem('mainroot_token', r.data.token); navigate('/dashboard');
+      // Usar AuthContext para login
+      login(r.data.token, r.data.user);
+      navigate('/dashboard');
     } catch (err) {
       setCode(['','','','','','']); inputRefs.current[0]?.focus();
-      setErrorMsg(err.response?.data?.error || 'Código inválido');
+      const errMsg = err.response?.data?.error || 'Código inválido';
+      setErrorMsg(errMsg);
+      // Si el backend fuerza re-login (max intentos MFA)
+      if (err.response?.data?.forceRelogin) {
+        setTimeout(() => navigate('/'), 2000);
+      }
     } finally { setIsLoading(false); }
   };
 

@@ -6,8 +6,7 @@ const api = axios.create({
   baseURL: 'http://localhost:3000/api', 
 });
 
-// Interceptor: Antes de que cualquier petición salga al backend, 
-// este bloque inyectará el JWT en los Headers si existe en el navegador.
+// Interceptor de Request: Inyecta el JWT automáticamente en cada petición
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('mainroot_token');
   if (token) {
@@ -17,5 +16,25 @@ api.interceptors.request.use((config) => {
 }, (error) => {
   return Promise.reject(error);
 });
+
+// Interceptor de Response: Maneja sesión expirada (401/403 por token inválido)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const { status, data } = error.response;
+      
+      // Si el backend responde 401 por token expirado, limpiar sesión y redirigir
+      if (status === 401 && data?.error?.includes('expirado')) {
+        localStorage.removeItem('mainroot_token');
+        // Solo redirigir si no estamos ya en la página de login
+        if (!window.location.pathname.match(/^\/(mfa)?$/)) {
+          window.location.href = '/';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

@@ -10,4 +10,7 @@ router.use(requireAuth);
 // Solo Administradores y Auditores pueden consultar los logs del sistema
 router.get('/', requireRole(['Admin', 'Auditor']), auditController.getLogs);
 
+// Estadísticas agregadas para el Dashboard (Admin y Auditor)
+router.get('/stats', requireRole(['Admin', 'Auditor']), auditController.getStats);
+
 export default router;

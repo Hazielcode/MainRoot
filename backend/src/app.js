@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import errorHandler from './middlewares/errorHandler.js';
 
 import authRoutes from './routes/authRoutes.js';
 import roleRoutes from './routes/roleRoutes.js';
@@ -39,5 +40,8 @@ app.get('/api/health', (req, res) => {
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
+
+// Middleware Global de Manejo de Errores (DEBE ir al final, después de todas las rutas)
+app.use(errorHandler);
 
 export default app;

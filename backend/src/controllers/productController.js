@@ -161,6 +161,16 @@ class ProductController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  // === STATS (Dashboard KPIs) ===
+  async getStats(req, res) {
+    try {
+      const stats = await productModel.getStats();
+      res.status(200).json(stats);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 export default new ProductController();

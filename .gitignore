@@ -8,8 +8,26 @@ npm-debug.log
 .env
 backend/.env
 frontend/.env
+*.env.local
+*.env.production
 
 # OS & Logs
 .DS_Store
 Thumbs.db
 *.log
+desktop.ini
+
+# Build Output
+frontend/dist/
+backend/dist/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Coverage & Tests
+coverage/
+.nyc_output/

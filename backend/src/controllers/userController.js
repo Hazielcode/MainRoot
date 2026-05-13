@@ -36,13 +36,42 @@ class UserController {
     }
   }
 
+  // Revocar un rol de un usuario (DELETE /api/users/:id/roles/:rolId)
+  async revokeRoleFromUser(req, res) {
+    try {
+      const { id, rolId } = req.params;
+
+      // Protección: No se puede auto-revocar el rol Admin si eres el único Admin
+      if (parseInt(id) === req.user.userId) {
+        const roleName = await userModel.getRoleNameById(rolId);
+        if (roleName === 'Admin') {
+          return res.status(403).json({ 
+            error: 'Acción Denegada: No puede revocar su propio rol de Administrador.' 
+          });
+        }
+      }
+
+      const result = await userModel.removeRole(id, rolId);
+      if (!result) {
+        return res.status(404).json({ error: 'La asignación de rol especificada no existe.' });
+      }
+
+      // LOG DE AUDITORÍA
+      await auditService.log(req, 'REVOKE_ROLE', 'usuarios', id, { rol_id: rolId }, null);
+
+      res.status(200).json({ message: 'Rol revocado exitosamente.', result });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   async toggleUserStatus(req, res) {
     try {
       const { id } = req.params;
       const { activo } = req.body;
 
       if (typeof activo !== 'boolean') {
-        return res.status(400).json({ error: 'El estado debe ser un booleano.' });
+        return res.status(400).json({ error: 'El estado debe ser un booleano (true/false).' });
       }
 
       if (id == req.user.userId) {
@@ -59,6 +88,16 @@ class UserController {
         message: `Usuario ${activo ? 'activado' : 'desactivado y bloqueado'} exitosamente.`, 
         user: updatedUser 
       });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  // GET /api/users/stats — Conteo rápido para KPIs del Dashboard
+  async getStats(req, res) {
+    try {
+      const stats = await userModel.getStats();
+      res.status(200).json(stats);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
