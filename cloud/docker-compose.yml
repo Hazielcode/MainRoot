@@ -1,9 +1,9 @@
-version: '3.8'
+name: mainroot
 
 services:
   backend:
     build:
-      context: ./backend
+      context: ../backend
       dockerfile: Dockerfile
     container_name: mainroot_backend
     ports:
@@ -14,14 +14,14 @@ services:
       - PORT=3000
       - NODE_ENV=production
     env_file:
-      - ./backend/.env
+      - ../backend/.env
     restart: unless-stopped
     networks:
       - mainroot_network
 
   frontend:
     build:
-      context: ./frontend
+      context: ../frontend
       dockerfile: Dockerfile
     container_name: mainroot_frontend
     ports:
