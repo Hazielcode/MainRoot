@@ -76,11 +76,17 @@ const DashboardLayout = ({ children, title, subtitle }) => {
         </nav>
         <div className="sidebar-footer">
           {/* Perfil resumido del usuario */}
-          <div style={{ 
-            display: 'flex', alignItems: 'center', gap: '0.75rem', 
-            padding: '0.75rem 0.85rem', marginBottom: '0.5rem',
-            borderRadius: 'var(--radius-md)', backgroundColor: 'var(--accent-light)'
-          }}>
+          <div 
+            onClick={() => navigate('/profile')}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.75rem', 
+              padding: '0.75rem 0.85rem', marginBottom: '0.5rem',
+              borderRadius: 'var(--radius-md)', backgroundColor: 'var(--accent-light)',
+              cursor: 'pointer', transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--hover-bg)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-light)'}
+          >
             <div style={{
               width: 34, height: 34, borderRadius: '50%',
               background: 'var(--accent-gradient)',
@@ -121,13 +127,20 @@ const DashboardLayout = ({ children, title, subtitle }) => {
             <button onClick={toggleTheme} className="btn-ghost" title="Tema" style={{ width: 38, height: 38 }}>
               {isDarkMode ? <Sun size={18}/> : <Moon size={18}/>}
             </button>
-            <div style={{
-              width: 38, height: 38, borderRadius: '12px',
-              background: 'var(--accent-gradient)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'white', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(54,124,252,0.25)'
-            }}>{initials}</div>
+            <div 
+              onClick={() => navigate('/profile')}
+              title="Mi Perfil"
+              style={{
+                width: 38, height: 38, borderRadius: '12px',
+                background: 'var(--accent-gradient)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'white', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(54,124,252,0.25)',
+                transition: 'transform 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >{initials}</div>
           </div>
         </div>
         <div className="page-content">{children}</div>

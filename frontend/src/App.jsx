@@ -10,7 +10,7 @@ import StoresPage from './pages/StoresPage.jsx';
 import StaffPage from './pages/StaffPage.jsx';
 import AuditPage from './pages/AuditPage.jsx';
 import RolesPage from './pages/RolesPage.jsx';
-
+import ProfilePage from './pages/ProfilePage.jsx';
 export const ThemeContext = createContext();
 
 /**
@@ -94,6 +94,7 @@ const App = () => {
             <Route path="/staff" element={<ProtectedRoute requiredRoles={['Admin']}><StaffPage /></ProtectedRoute>} />
             <Route path="/audit" element={<ProtectedRoute requiredRoles={['Admin', 'Auditor']}><AuditPage /></ProtectedRoute>} />
             <Route path="/roles" element={<ProtectedRoute requiredRoles={['Admin']}><RolesPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             
             {/* Catch-all */}
             <Route path="*" element={<Navigate to="/" />} />

@@ -7,7 +7,7 @@ import api from '../services/api.js';
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
-  const [form, setForm] = useState({ nombre_completo:'', email:'', password:'', confirmPassword:'' });
+  const [form, setForm] = useState({ nombres:'', apellidos:'', telefono:'', fecha_nacimiento:'', email:'', password:'', confirmPassword:'' });
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +31,7 @@ const RegisterPage = () => {
     if (!match) { setErrorMsg('Las contraseñas no coinciden.'); return; }
     setIsLoading(true);
     try {
-      await api.post('/auth/register', { email:form.email, password:form.password, nombre_completo:form.nombre_completo });
+      await api.post('/auth/register', { email:form.email, password:form.password, nombres:form.nombres, apellidos:form.apellidos, telefono:form.telefono, fecha_nacimiento:form.fecha_nacimiento });
       setSuccessMsg('Cuenta creada. Redirigiendo...'); setTimeout(()=>navigate('/'),2000);
     } catch(err) { setErrorMsg(err.response?.data?.error||'Error al registrar'); }
     finally { setIsLoading(false); }
@@ -65,7 +65,12 @@ const RegisterPage = () => {
             {successMsg && <div style={{ background:'rgba(16,185,129,0.08)', color:'var(--success)', padding:'0.75rem 1rem', borderRadius:14, marginBottom:'1rem', fontSize:'0.85rem', border:'1px solid rgba(16,185,129,0.15)', fontWeight:500 }}>{successMsg}</div>}
 
             <form onSubmit={handleRegister}>
-              <div className="input-group"><label className="input-label">Nombre Completo</label><input className="input-control" placeholder="Juan Pérez" required value={form.nombre_completo} onChange={e=>handleChange('nombre_completo',e.target.value)} style={{ borderRadius:14 }}/></div>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <div className="input-group" style={{ flex: 1 }}><label className="input-label">Nombres</label><input className="input-control" placeholder="Juan Carlos" required value={form.nombres} onChange={e=>handleChange('nombres',e.target.value)} style={{ borderRadius:14 }}/></div>
+                <div className="input-group" style={{ flex: 1 }}><label className="input-label">Apellidos</label><input className="input-control" placeholder="Pérez Gómez" required value={form.apellidos} onChange={e=>handleChange('apellidos',e.target.value)} style={{ borderRadius:14 }}/></div>
+              </div>
+              <div className="input-group"><label className="input-label">Teléfono Móvil <span style={{fontSize:'0.7rem', color:'var(--text-secondary)'}}>(Opcional)</span></label><input type="tel" className="input-control" placeholder="+51 987 654 321" value={form.telefono} onChange={e=>handleChange('telefono',e.target.value)} style={{ borderRadius:14 }}/></div>
+              <div className="input-group"><label className="input-label">Fecha de Nacimiento <span style={{fontSize:'0.7rem', color:'var(--text-secondary)'}}>(Opcional)</span></label><input type="date" className="input-control" value={form.fecha_nacimiento} onChange={e=>handleChange('fecha_nacimiento',e.target.value)} style={{ borderRadius:14 }}/></div>
               <div className="input-group"><label className="input-label">Correo Electrónico</label><input type="email" className="input-control" placeholder="usuario@mainroot.com" required value={form.email} onChange={e=>handleChange('email',e.target.value)} style={{ borderRadius:14 }}/></div>
               <div className="input-group"><label className="input-label">Contraseña</label><input type="password" className="input-control" placeholder="••••••••" required value={form.password} onChange={e=>handleChange('password',e.target.value)} style={{ borderRadius:14 }}/></div>
 
